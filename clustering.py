@@ -33,6 +33,27 @@ def backscale(arr, df_min, df_max):
 
     return arr
 
+def err_ranges(x, func, param, sigma):
+    import itertools as iter
+    
+    lower = func(x, *param)
+    upper = lower
+    
+    uplow = []
+    for p, s in zip(param, sigma):
+        pmin = p - s
+        pmax = p + s
+        uplow.append((pmin, pmax))
+        
+    pmix = list(iter.product(*uplow))
+    
+    for p in pmix:
+        y = func(x, *p)
+        lower = np.minimum(lower, y)
+        upper = np.maximum(upper, y)
+        
+    return lower, upper
+
 # Read CSV
 file_name = 'co2_clustering.csv'
 df = pd.read_csv(file_name, skiprows=4)
@@ -87,5 +108,47 @@ for i in range(optimal_clusters):
     print(f'Countries in Cluster {i}:')
     print(cluster_countries)
     print()
+    
+# Fitting the data to a linear model
+
+# Read CSV
+file_name = 'co2_clustering.csv'
+df = pd.read_csv(file_name, skiprows=4)
+
+# Selecting the columns to be used
+columns_to_use = [str(year) for year in range(1990, 2020)]
+df_years = df[['Country Name', 'Country Code'] + columns_to_use]
+
+# Fill missing values with the mean
+df_years = df_years.fillna(df_years.mean())
+
+# Fit a polynomial model for a specific country
+country = 'China'
+df_country = df_years[df_years['Country Name'] == country][columns_to_use].values.flatten()
+
+# X values (years)
+x = np.arange(1990, 2020)
+
+# Fit the model
+degree = 3  # Degree of the polynomial fit
+coefficients = np.polyfit(x, df_country, degree)
+polynomial_model = np.poly1d(coefficients)
+
+# Make predictions
+x_pred = np.arange(1990, 2040)  # Predict 20 years into the future
+y_pred = polynomial_model(x_pred)
+
+# Calculate R-squared
+r2 = r2_score(df_country, polynomial_model(x))
+
+# Plot the results
+plt.figure(figsize=(12, 8))
+plt.plot(x, df_country, 'o', label='Actual Data')
+plt.plot(x_pred, y_pred, label=f'Polynomial Fit (Degree: {degree}, R^2: {r2:.4f})')
+plt.xlabel('Year')
+plt.ylabel('CO2 Emissions (metric tons per capita)')
+plt.title(f'{country} CO2 Emissions - Polynomial Model')
+plt.legend()
+plt.show()
 
 
