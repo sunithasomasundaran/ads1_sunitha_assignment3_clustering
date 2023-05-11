@@ -151,4 +151,34 @@ plt.title(f'{country} CO2 Emissions - Polynomial Model')
 plt.legend()
 plt.show()
 
+# Comparing First Cluster Result
+
+# Read CSV
+file_name = 'co2_clustering.csv'
+df = pd.read_csv(file_name, skiprows=4)
+
+# Selecting the columns to be used
+columns_to_use = [str(year) for year in range(1990, 2020)]
+df_years = df[['Country Name', 'Country Code'] + columns_to_use]
+
+# Fill missing values with the mean
+df_years = df_years.fillna(df_years.mean())
+
+# Choose countries
+countries = ['Zimbabwe', 'Zambia', 'Ghana', 'Yemen, Rep.']
+
+# Plot the data for the chosen countries
+plt.figure(figsize=(12, 8))
+
+for country in countries:
+    df_country = df_years[df_years['Country Name'] == country][columns_to_use].values.flatten()
+    x = np.arange(1990, 2020)
+    plt.plot(x, df_country, label=country)
+
+plt.xlabel('Year')
+plt.ylabel('CO2 Emissions (metric tons per capita)')
+plt.title('CO2 Emissions by Country (1990-2019)')
+plt.legend()
+plt.show()
+
 
