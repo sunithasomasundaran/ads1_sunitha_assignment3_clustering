@@ -33,27 +33,6 @@ def backscale(arr, df_min, df_max):
 
     return arr
 
-def err_ranges(x, func, param, sigma):
-    import itertools as iter
-    
-    lower = func(x, *param)
-    upper = lower
-    
-    uplow = []
-    for p, s in zip(param, sigma):
-        pmin = p - s
-        pmax = p + s
-        uplow.append((pmin, pmax))
-        
-    pmix = list(iter.product(*uplow))
-    
-    for p in pmix:
-        y = func(x, *p)
-        lower = np.minimum(lower, y)
-        upper = np.maximum(upper, y)
-        
-    return lower, upper
-
 # Read CSV
 file_name = 'co2_clustering.csv'
 df = pd.read_csv(file_name, skiprows=4)
