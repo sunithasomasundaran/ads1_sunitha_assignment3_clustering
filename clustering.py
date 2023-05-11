@@ -1,5 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+import numpy as np
+from sklearn.metrics import r2_score
 
 def scaler(df):
     """ Expects a dataframe and normalises all 
